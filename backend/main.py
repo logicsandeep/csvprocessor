@@ -20,6 +20,11 @@ app.add_middleware(
 
 # Removed OpenAI functionality to focus on CSV processing
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Railway"""
+    return {"status": "healthy", "message": "CSV Processor is running"}
+
 @app.post("/process-csv")
 async def process_csv(file: UploadFile = File(...)):
     """
