@@ -274,7 +274,7 @@
     <div class="container">
         <div class="header">
             <h1>📊 CSV Processor</h1>
-            <p>Upload your student data CSV file and get a filtered version with Student, Grade, Photo Release, and Parent Pickup columns.</p>
+            <p>Upload your student data CSV file and get an Excel file with filtered data and original data in separate tabs.</p>
         </div>
 
         <div class="upload-area" id="uploadArea">
@@ -298,8 +298,8 @@
 
         <div class="result" id="result">
             <h3>✅ Processing Complete!</h3>
-            <p>Your filtered CSV file is ready for download.</p>
-            <a href="#" class="download-btn" id="downloadBtn">Download Filtered.csv</a>
+            <p>Your Excel file with filtered and original data is ready for download.</p>
+            <a href="#" class="download-btn" id="downloadBtn">Download Student_Data_Processed.xlsx</a>
         </div>
 
         <div class="error" id="error">
@@ -309,12 +309,12 @@
         <div class="features">
             <h3>What this tool does:</h3>
             <ul class="feature-list">
-                <li>Extracts Student names from your CSV</li>
-                <li>Filters Grade information</li>
-                <li>Includes Photo Release status</li>
-                <li>Shows Parent Pickup authorization details</li>
+                <li>Creates Excel file with two tabs: Filtered and Original</li>
+                <li>Filtered tab: Student, Grade, Photo Release, Parent Pickup</li>
+                <li>Original tab: All columns from your input CSV</li>
                 <li>Preserves empty strings as valid values</li>
                 <li>Handles misaligned CSV data automatically</li>
+                <li>Professional Excel format for easy sharing</li>
             </ul>
         </div>
     </div>
@@ -415,7 +415,7 @@
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
                 downloadBtn.href = url;
-                downloadBtn.download = 'Filtered.csv';
+                downloadBtn.download = 'Student_Data_Processed.xlsx';
 
                 hideLoading();
                 showResult();

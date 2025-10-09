@@ -60,19 +60,26 @@ async def process_csv(file: UploadFile = File(...)):
             'Parent Pickup': df.iloc[:, 17]  # Parent Pickup column is correct
         })
         
-        # Create temporary file for output
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as temp_output:
-            filtered_df.to_csv(temp_output.name, index=False, na_rep='')
+        # Create temporary Excel file for output
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.xlsx', delete=False) as temp_output:
             temp_output_path = temp_output.name
+        
+        # Create Excel file with two tabs
+        with pd.ExcelWriter(temp_output_path, engine='openpyxl') as writer:
+            # Tab 1: Filtered data
+            filtered_df.to_excel(writer, sheet_name='Filtered', index=False)
+            
+            # Tab 2: Original data (all columns)
+            df.to_excel(writer, sheet_name='Original', index=False)
         
         # Clean up input file
         os.unlink(temp_input_path)
         
-        # Return the filtered CSV file
+        # Return the Excel file
         return FileResponse(
             path=temp_output_path,
-            filename="Filtered.csv",
-            media_type="text/csv"
+            filename="Student_Data_Processed.xlsx",
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
         
     except Exception as e:
