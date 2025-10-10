@@ -101,8 +101,20 @@ async def process_csv(file: UploadFile = File(...)):
             # Tab 1: Filtered data
             filtered_df.to_excel(writer, sheet_name='Filtered', index=False)
             
-            # Tab 2: Original data (all columns)
-            df.to_excel(writer, sheet_name='Original', index=False)
+            # Tab 2: Original data (all columns except Schedule Name)
+            # Remove any columns that contain "Schedule" and "Name" to ignore Schedule Name
+            original_df = df.copy()
+            columns_to_remove = []
+            for col in original_df.columns:
+                if 'Schedule' in col and 'Name' in col:
+                    columns_to_remove.append(col)
+                    print(f"Removing Schedule Name column: '{col}'")
+            
+            if columns_to_remove:
+                original_df = original_df.drop(columns=columns_to_remove)
+                print(f"Removed {len(columns_to_remove)} Schedule Name column(s)")
+            
+            original_df.to_excel(writer, sheet_name='Original', index=False)
         
         # Clean up input file
         os.unlink(temp_input_path)
