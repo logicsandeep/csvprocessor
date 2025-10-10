@@ -47,15 +47,19 @@ async def process_csv(file: UploadFile = File(...)):
         # Try multiple encodings to handle special characters in column headers
         try:
             df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8-sig')
+            print("Successfully read CSV with utf-8-sig encoding")
         except UnicodeDecodeError:
             try:
                 df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8')
+                print("Successfully read CSV with utf-8 encoding")
             except UnicodeDecodeError:
                 try:
                     df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='latin-1')
+                    print("Successfully read CSV with latin-1 encoding")
                 except UnicodeDecodeError:
                     # Last resort: try with error handling
                     df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8', errors='replace')
+                    print("Successfully read CSV with utf-8 encoding and error replacement")
         
         # Debug: Print column names to help identify the correct columns
         print(f"CSV columns: {list(df.columns)}")
@@ -101,18 +105,20 @@ async def process_csv(file: UploadFile = File(...)):
             # Tab 1: Filtered data
             filtered_df.to_excel(writer, sheet_name='Filtered', index=False)
             
-            # Tab 2: Original data (all columns except Schedule Name)
-            # Remove any columns that contain "Schedule" and "Name" to ignore Schedule Name
+            # Tab 2: Original data (all columns including Schedule Name)
+            # Include all columns from the original CSV
             original_df = df.copy()
-            columns_to_remove = []
-            for col in original_df.columns:
-                if 'Schedule' in col and 'Name' in col:
-                    columns_to_remove.append(col)
-                    print(f"Removing Schedule Name column: '{col}'")
+            print(f"Including all {len(original_df.columns)} columns in Original tab")
             
-            if columns_to_remove:
-                original_df = original_df.drop(columns=columns_to_remove)
-                print(f"Removed {len(columns_to_remove)} Schedule Name column(s)")
+            # Check if Schedule Name column exists and log its details
+            schedule_columns = [col for col in original_df.columns if 'Schedule' in col and 'Name' in col]
+            if schedule_columns:
+                print(f"Schedule Name column(s) found: {schedule_columns}")
+                for col in schedule_columns:
+                    non_empty_count = original_df[col].notna().sum()
+                    print(f"Column '{col}' has {non_empty_count} non-empty values out of {len(original_df)} rows")
+            else:
+                print("No Schedule Name column found in the data")
             
             original_df.to_excel(writer, sheet_name='Original', index=False)
         
