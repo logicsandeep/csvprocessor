@@ -51,13 +51,32 @@ async def process_csv(file: UploadFile = File(...)):
             try:
                 df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8')
             except UnicodeDecodeError:
-                df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='latin-1')
+                try:
+                    df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='latin-1')
+                except UnicodeDecodeError:
+                    # Last resort: try with error handling
+                    df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8', errors='replace')
         
         # Debug: Print column names to help identify the correct columns
         print(f"CSV columns: {list(df.columns)}")
         print(f"Total columns: {len(df.columns)}")
         for i, col in enumerate(df.columns):
             print(f"Column {i}: '{col}'")
+        
+        # Check for and fix "Schedule Name©" column if it's being misinterpreted
+        schedule_name_found = False
+        for i, col in enumerate(df.columns):
+            if 'Schedule' in col and 'Name' in col:
+                print(f"Found Schedule Name column at position {i}: '{col}'")
+                schedule_name_found = True
+                break
+        
+        if not schedule_name_found:
+            print("WARNING: Schedule Name column not found with expected name")
+            # Look for columns that might contain the schedule name data
+            for i, col in enumerate(df.columns):
+                if any(keyword in col.lower() for keyword in ['schedule', 'program', 'course', 'class']):
+                    print(f"Potential schedule column at position {i}: '{col}'")
         
         # The CSV data is misaligned, so we need to map to the correct columns:
         # Student names are in "Mobile Phone" column (position 6)
