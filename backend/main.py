@@ -44,7 +44,7 @@ async def process_csv(file: UploadFile = File(...)):
             temp_input_path = temp_input.name
         
         # Process the CSV using the same logic as convertcsv.py
-        df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str)
+        df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8-sig')
         
         # The CSV data is misaligned, so we need to map to the correct columns:
         # Student names are in "Mobile Phone" column (position 6)
