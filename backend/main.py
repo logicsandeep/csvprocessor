@@ -61,6 +61,21 @@ async def process_csv(file: UploadFile = File(...)):
                     df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8', errors='replace')
                     print("Successfully read CSV with utf-8 encoding and error replacement")
         
+        # Fix column alignment issues by trying different CSV parsing options
+        if len(df.columns) > 0:
+            # Check if the first column looks like it might be misaligned
+            first_col = df.columns[0]
+            if first_col in ['Unnamed: 0', ''] or first_col.startswith('Unnamed'):
+                print(f"Detected potential column misalignment. First column: '{first_col}'")
+                # Try reading with different parameters to fix alignment
+                try:
+                    df_fixed = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8-sig', header=0, skiprows=0)
+                    if len(df_fixed.columns) > len(df.columns):
+                        df = df_fixed
+                        print("Fixed column alignment by re-reading CSV")
+                except:
+                    pass
+        
         # Debug: Print column names to help identify the correct columns
         print(f"CSV columns: {list(df.columns)}")
         print(f"Total columns: {len(df.columns)}")
@@ -81,6 +96,22 @@ async def process_csv(file: UploadFile = File(...)):
             for i, col in enumerate(df.columns):
                 if any(keyword in col.lower() for keyword in ['schedule', 'program', 'course', 'class']):
                     print(f"Potential schedule column at position {i}: '{col}'")
+            
+            # Try alternative CSV parsing if Schedule Name is missing
+            print("Attempting alternative CSV parsing to find Schedule Name...")
+            try:
+                # Try reading with different parameters
+                df_alt = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8-sig', sep=',', quotechar='"', skipinitialspace=True)
+                if len(df_alt.columns) > len(df.columns):
+                    print(f"Alternative parsing found {len(df_alt.columns)} columns vs {len(df.columns)} original")
+                    # Check if Schedule Name is found in alternative parsing
+                    for i, col in enumerate(df_alt.columns):
+                        if 'Schedule' in col and 'Name' in col:
+                            print(f"Found Schedule Name in alternative parsing at position {i}: '{col}'")
+                            df = df_alt
+                            break
+            except Exception as e:
+                print(f"Alternative parsing failed: {e}")
         
         # The CSV data is misaligned, so we need to map to the correct columns:
         # Student names are in "Mobile Phone" column (position 6)
