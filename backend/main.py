@@ -44,7 +44,17 @@ async def process_csv(file: UploadFile = File(...)):
             temp_input_path = temp_input.name
         
         # Process the CSV using the same logic as convertcsv.py
-        df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8-sig')
+        # Try multiple encodings to handle special characters in column headers
+        try:
+            df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8-sig')
+        except UnicodeDecodeError:
+            try:
+                df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8')
+            except UnicodeDecodeError:
+                df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='latin-1')
+        
+        # Debug: Print column names to help identify the correct columns
+        print(f"CSV columns: {list(df.columns)}")
         
         # The CSV data is misaligned, so we need to map to the correct columns:
         # Student names are in "Mobile Phone" column (position 6)
