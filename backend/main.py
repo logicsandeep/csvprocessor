@@ -46,19 +46,19 @@ async def process_csv(file: UploadFile = File(...)):
         # Process the CSV using the same logic as convertcsv.py
         # Try multiple encodings to handle special characters in column headers
         try:
-            df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8-sig')
+            df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8-sig', index_col=False)
             print("Successfully read CSV with utf-8-sig encoding")
         except UnicodeDecodeError:
             try:
-                df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8')
+                df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8', index_col=False)
                 print("Successfully read CSV with utf-8 encoding")
             except UnicodeDecodeError:
                 try:
-                    df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='latin-1')
+                    df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='latin-1', index_col=False)
                     print("Successfully read CSV with latin-1 encoding")
                 except UnicodeDecodeError:
                     # Last resort: try with error handling
-                    df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8', errors='replace')
+                    df = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8', errors='replace', index_col=False)
                     print("Successfully read CSV with utf-8 encoding and error replacement")
         
         # Fix column alignment issues by trying different CSV parsing options
@@ -82,6 +82,17 @@ async def process_csv(file: UploadFile = File(...)):
         for i, col in enumerate(df.columns):
             print(f"Column {i}: '{col}'")
         
+        # Ensure first column is preserved
+        if len(df.columns) > 0:
+            first_col_name = df.columns[0]
+            print(f"First column preserved: '{first_col_name}'")
+            if first_col_name in ['Unnamed: 0', ''] or first_col_name.startswith('Unnamed'):
+                print("WARNING: First column appears to be unnamed - this may indicate parsing issues")
+            else:
+                print(f"First column looks good: '{first_col_name}'")
+        else:
+            print("ERROR: No columns found in CSV!")
+        
         # Check for and fix "Schedule Name©" column if it's being misinterpreted
         schedule_name_found = False
         for i, col in enumerate(df.columns):
@@ -101,7 +112,7 @@ async def process_csv(file: UploadFile = File(...)):
             print("Attempting alternative CSV parsing to find Schedule Name...")
             try:
                 # Try reading with different parameters
-                df_alt = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8-sig', sep=',', quotechar='"', skipinitialspace=True)
+                df_alt = pd.read_csv(temp_input_path, keep_default_na=False, na_values=[''], dtype=str, encoding='utf-8-sig', sep=',', quotechar='"', skipinitialspace=True, index_col=False)
                 if len(df_alt.columns) > len(df.columns):
                     print(f"Alternative parsing found {len(df_alt.columns)} columns vs {len(df.columns)} original")
                     # Check if Schedule Name is found in alternative parsing
