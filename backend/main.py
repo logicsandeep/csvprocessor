@@ -55,6 +55,9 @@ async def process_csv(file: UploadFile = File(...)):
         
         # Debug: Print column names to help identify the correct columns
         print(f"CSV columns: {list(df.columns)}")
+        print(f"Total columns: {len(df.columns)}")
+        for i, col in enumerate(df.columns):
+            print(f"Column {i}: '{col}'")
         
         # The CSV data is misaligned, so we need to map to the correct columns:
         # Student names are in "Mobile Phone" column (position 6)
