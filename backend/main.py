@@ -124,18 +124,18 @@ async def process_csv(file: UploadFile = File(...)):
             except Exception as e:
                 print(f"Alternative parsing failed: {e}")
         
-        # The CSV data is misaligned, so we need to map to the correct columns:
-        # Student names are in "Mobile Phone" column (position 6)
-        # Grades are in "Gender" column (position 14) 
-        # Photo Release is in "Authorized to Pickup" column (position 18)
-        # Parent Pickup is in "Parent Pickup" column (position 17)
+        # The CSV data is now properly aligned, so we need to map to the correct columns:
+        # Student names are in "Mobile Phone" column (position 7, was 6)
+        # Grades are in "Gender" column (position 15, was 14) 
+        # Photo Release is in "Authorized to Pickup" column (position 19, was 18)
+        # Parent Pickup is in "Parent Pickup" column (position 18, was 17)
         
         # Create a new DataFrame with the correct data
         filtered_df = pd.DataFrame({
-            'Student': df.iloc[:, 6],  # Mobile Phone column has student names
-            'Grade': df.iloc[:, 14],   # Gender column has the actual grades
-            'Photo Release': df.iloc[:, 18],  # Authorized to Pickup column has Photo Release
-            'Parent Pickup': df.iloc[:, 17]  # Parent Pickup column is correct
+            'Student': df.iloc[:, 7],   # Mobile Phone column has student names (adjusted +1)
+            'Grade': df.iloc[:, 15],   # Gender column has the actual grades (adjusted +1)
+            'Photo Release': df.iloc[:, 19],  # Authorized to Pickup column has Photo Release (adjusted +1)
+            'Parent Pickup': df.iloc[:, 18]  # Parent Pickup column is correct (adjusted +1)
         })
         
         # Create temporary Excel file for output
