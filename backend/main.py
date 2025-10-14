@@ -125,17 +125,19 @@ async def process_csv(file: UploadFile = File(...)):
                 print(f"Alternative parsing failed: {e}")
         
         # The CSV data is now properly aligned, so we need to map to the correct columns:
-        # Student names are in "Mobile Phone" column (position 7, was 6)
-        # Grades are in "Gender" column (position 15, was 14) 
-        # Photo Release is in "Authorized to Pickup" column (position 19, was 18)
-        # Parent Pickup is in "Parent Pickup" column (position 18, was 17)
+        # Based on the column structure, we'll map to the appropriate positions
         
-        # Create a new DataFrame with the correct data
+        # Create a new DataFrame with all requested columns
         filtered_df = pd.DataFrame({
-            'Student': df.iloc[:, 7],   # Mobile Phone column has student names (adjusted +1)
-            'Grade': df.iloc[:, 15],   # Gender column has the actual grades (adjusted +1)
-            'Photo Release': df.iloc[:, 19],  # Authorized to Pickup column has Photo Release (adjusted +1)
-            'Parent Pickup': df.iloc[:, 18]  # Parent Pickup column is correct (adjusted +1)
+            'Student': df.iloc[:, 7],           # Mobile Phone column has student names
+            'Gender': df.iloc[:, 15],          # Gender column
+            'Grade': df.iloc[:, 16],           # Grade column (next to Gender)
+            'Photo Release': df.iloc[:, 19],   # Authorized to Pickup column has Photo Release
+            'Parent Pickup': df.iloc[:, 18],  # Parent Pickup column
+            'Authorized to Pickup': df.iloc[:, 19],  # Authorized to Pickup column
+            'First Name': df.iloc[:, 0],       # First Name column (first column)
+            'Last Name': df.iloc[:, 1],        # Last Name column (second column)
+            'Primary Phone': df.iloc[:, 7]     # Mobile Phone column (same as Student)
         })
         
         # Create temporary Excel file for output
