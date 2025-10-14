@@ -130,15 +130,26 @@ async def process_csv(file: UploadFile = File(...)):
         # Create a new DataFrame with all requested columns
         filtered_df = pd.DataFrame({
             'Student': df.iloc[:, 7],           # Mobile Phone column has student names
-            'Gender': df.iloc[:, 15],          # Gender column
-            'Grade': df.iloc[:, 16],           # Grade column (next to Gender)
+            'Gender': df.iloc[:, 16],          # Gender column (adjusted +1)
+            'Grade': df.iloc[:, 17],           # Grade column (adjusted +1)
             'Photo Release': df.iloc[:, 19],   # Authorized to Pickup column has Photo Release
             'Parent Pickup': df.iloc[:, 18],  # Parent Pickup column
             'Authorized to Pickup': df.iloc[:, 19],  # Authorized to Pickup column
             'First Name': df.iloc[:, 0],       # First Name column (first column)
             'Last Name': df.iloc[:, 1],        # Last Name column (second column)
-            'Primary Phone': df.iloc[:, 7]     # Mobile Phone column (same as Student)
+            'Primary Phone': df.iloc[:, 7],    # Mobile Phone column (same as Student)
+            'DOB': df.iloc[:, 2]               # Date of Birth column (third column)
         })
+        
+        # Sort by DOB in ascending order (oldest to newest)
+        try:
+            # Convert DOB to datetime for proper sorting
+            filtered_df['DOB'] = pd.to_datetime(filtered_df['DOB'], errors='coerce')
+            filtered_df = filtered_df.sort_values('DOB', ascending=True)
+            print(f"Sorted {len(filtered_df)} rows by DOB in ascending order")
+        except Exception as e:
+            print(f"Could not sort by DOB: {e}")
+            # Keep original order if sorting fails
         
         # Create temporary Excel file for output
         with tempfile.NamedTemporaryFile(mode='w', suffix='.xlsx', delete=False) as temp_output:
