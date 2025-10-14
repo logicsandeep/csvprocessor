@@ -130,8 +130,8 @@ async def process_csv(file: UploadFile = File(...)):
         # Create a new DataFrame with all requested columns
         filtered_df = pd.DataFrame({
             'Student': df.iloc[:, 7],           # Mobile Phone column has student names
-            'Gender': df.iloc[:, 14],          # Gender column (adjusted +1)
-            'Grade': df.iloc[:, 15],           # Grade column (adjusted +1)
+            'Gender': df.iloc[:, 12],          # Gender column (adjusted +1)
+            'Grade': df.iloc[:, 13],           # Grade column (adjusted +1)
             'Photo Release': df.iloc[:, 19],   # Authorized to Pickup column has Photo Release
             'Parent Pickup': df.iloc[:, 18],  # Parent Pickup column
             'Authorized to Pickup': df.iloc[:, 19],  # Authorized to Pickup column
