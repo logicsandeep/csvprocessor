@@ -135,15 +135,35 @@ async def process_csv(file: UploadFile = File(...)):
             'Photo Release': df.iloc[:, 19],   # Authorized to Pickup column has Photo Release
             'Parent Pickup': df.iloc[:, 18],  # Parent Pickup column
             'Authorized to Pickup': df.iloc[:, 19],  # Authorized to Pickup column
-            'First Name': df.iloc[:, 0],       # First Name column (first column)
-            'Last Name': df.iloc[:, 1],        # Last Name column (second column)
-            'Primary Phone': df.iloc[:, 7]     # Mobile Phone column (same as Student)
+            'First Name': df.iloc[:, 1],       # First Name column (first column)
+            'Last Name': df.iloc[:, 2],        # Last Name column (second column)
+            'Primary Phone': df.iloc[:, 4]     # Mobile Phone column (same as Student)
         })
         
-        # Sort by Grade in ascending order
+        # Sort by Grade with custom logic: alphabets first, then numbers
         try:
-            filtered_df = filtered_df.sort_values('Grade', ascending=True)
-            print(f"Sorted {len(filtered_df)} rows by Grade in ascending order")
+            def custom_grade_sort(grade):
+                """Custom sorting function: alphabets first, then numbers"""
+                if pd.isna(grade) or grade == '':
+                    return (2, '')  # Empty values go last
+                
+                grade_str = str(grade).strip()
+                
+                # Check if it's purely alphabetic
+                if grade_str.isalpha():
+                    return (0, grade_str.lower())  # Alphabets first, case-insensitive
+                # Check if it's purely numeric
+                elif grade_str.isdigit():
+                    return (1, int(grade_str))  # Numbers second, as integers
+                # Mixed or other formats
+                else:
+                    return (1, grade_str.lower())  # Mixed formats with numbers
+            
+            # Apply custom sorting
+            filtered_df['_sort_key'] = filtered_df['Grade'].apply(custom_grade_sort)
+            filtered_df = filtered_df.sort_values('_sort_key').drop('_sort_key', axis=1)
+            
+            print(f"Sorted {len(filtered_df)} rows by Grade (alphabets first, then numbers)")
         except Exception as e:
             print(f"Could not sort by Grade: {e}")
             # Keep original order if sorting fails
