@@ -133,8 +133,8 @@ async def process_csv(file: UploadFile = File(...)):
             'Gender': df.iloc[:, 14],          # Gender column (adjusted +1)
             'Grade': df.iloc[:, 15],           # Grade column (adjusted +1)
             'Photo Release': df.iloc[:, 19],   # Authorized to Pickup column has Photo Release
-            'Parent Pickup': df.iloc[:, 18],  # Parent Pickup column
-            'Authorized to Pickup': df.iloc[:, 19],  # Authorized to Pickup column
+            'Parent Pickup': df.iloc[:, 17],  # Parent Pickup column
+            'Authorized to Pickup': df.iloc[:, 18], 
             'First Name': df.iloc[:, 1],       # First Name column (first column)
             'Last Name': df.iloc[:, 2],        # Last Name column (second column)
             'Primary Phone': df.iloc[:, 4]     # Mobile Phone column (same as Student)
