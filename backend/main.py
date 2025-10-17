@@ -137,18 +137,15 @@ async def process_csv(file: UploadFile = File(...)):
             'Authorized to Pickup': df.iloc[:, 19],  # Authorized to Pickup column
             'First Name': df.iloc[:, 0],       # First Name column (first column)
             'Last Name': df.iloc[:, 1],        # Last Name column (second column)
-            'Primary Phone': df.iloc[:, 7],    # Mobile Phone column (same as Student)
-            'Birthday': df.iloc[:, 10]               # Date of Birth column (third column)
+            'Primary Phone': df.iloc[:, 7]     # Mobile Phone column (same as Student)
         })
         
-        # Sort by DOB in ascending order (oldest to newest)
+        # Sort by Grade in ascending order
         try:
-            # Convert DOB to datetime for proper sorting
-            filtered_df['Birthday'] = pd.to_datetime(filtered_df['Birthday'], errors='coerce')
-            filtered_df = filtered_df.sort_values('Birthday', ascending=True)
-            print(f"Sorted {len(filtered_df)} rows by Birthday in ascending order")
+            filtered_df = filtered_df.sort_values('Grade', ascending=True)
+            print(f"Sorted {len(filtered_df)} rows by Grade in ascending order")
         except Exception as e:
-            print(f"Could not sort by Birthday: {e}")
+            print(f"Could not sort by Grade: {e}")
             # Keep original order if sorting fails
         
         # Create temporary Excel file for output
